@@ -10,5 +10,5 @@ Durch Texteingabe des gesuchten Namens ("Mustermann, Max") werden die Dienstzeit
 #### v1.0a
 Erstellt ein ICS-File pro Kalenderwoche. Sinnvoll für manuelles Importieren, um doppelte Kalendereinträge zu vermeiden.
 
-### v1.0b
+#### v1.0b
 Erstellt ein ICS-File, zu dem neue Events stets angefügt werden. Sinnvoll für ICS-Kalender-Feeds, die über URLs eingebunden werden (zB über Google Drive + Google Calendar) und stetig synchronisiert werden.

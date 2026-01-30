@@ -9,3 +9,6 @@ Durch Texteingabe des gesuchten Namens ("Mustermann, Max") werden die Dienstzeit
 
 #### v1.1
 Einfaches GUI für Quelldatei, Textsuche und Speicherort. Option zum Überschreiben von ICS-Daten in bereits bestehenden Dateien.
+
+#### v1.2
+Package Import Optimierung für bessere Performance. MacOS .App File zum Release hinzugefügt.

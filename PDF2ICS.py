@@ -1,11 +1,4 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
-#!/usr/bin/env python3
-# coding: utf-8
+# Version 1.3
 
 import tkinter as tk
 from tkinter import filedialog, messagebox
@@ -65,12 +58,22 @@ def parse_work_hours(row, dates):
                 day=dates[i].day,
                 tzinfo=vienna_tz,
             )
-            end_dt = datetime.strptime(end_time, "%H:%M").replace(
-                year=dates[i].year,
-                month=dates[i].month,
-                day=dates[i].day,
-                tzinfo=vienna_tz,
-            )
+            if(end_time<=start_time):
+                end_dt = datetime.strptime(end_time, "%H:%M").replace(
+                    year=dates[i].year,
+                    month=dates[i].month,
+                    day=dates[i].day + 1,
+                    tzinfo=vienna_tz,
+                )
+            else:
+                end_dt = datetime.strptime(end_time, "%H:%M").replace(
+                    year=dates[i].year,
+                    month=dates[i].month,
+                    day=dates[i].day,
+                    tzinfo=vienna_tz,
+                )
+            print(start_dt)
+            print(end_dt)
 
             work_schedule.append((start_dt, end_dt))
 
@@ -164,10 +167,3 @@ tk.Checkbutton(frame, text="Daten überschreiben", variable=overwrite_var).grid(
 tk.Button(frame, text="Verarbeiten", command=process_pdf).grid(row=4, column=1, pady=10)
 
 root.mainloop()
-
-
-# In[ ]:
-
-
-
-

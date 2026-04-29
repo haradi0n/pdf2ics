@@ -1,11 +1,13 @@
-# Version 1.3
+### Version 1.1.2
 
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from datetime import datetime
 import os
+import json
 
 
+### Searches the PDF File for the chosen name
 def find_rows_in_pdf(pdf_path, search_term):
     import pdfplumber
     import pandas as pd
@@ -22,6 +24,7 @@ def find_rows_in_pdf(pdf_path, search_term):
     return results
 
 
+### Looks up the dates from the first row of the first page
 def get_dates_from_first_row(pdf_path):
     import pdfplumber
 
@@ -40,6 +43,7 @@ def get_dates_from_first_row(pdf_path):
         return dates
 
 
+### Extracts work shift hours and parses them to the work schedule
 def parse_work_hours(row, dates):
     import pytz
     from datetime import datetime
@@ -72,14 +76,14 @@ def parse_work_hours(row, dates):
                     day=dates[i].day,
                     tzinfo=vienna_tz,
                 )
-            print(start_dt)
-            print(end_dt)
 
             work_schedule.append((start_dt, end_dt))
 
     return work_schedule
 
 
+### Writes work schedule into the .ics file
+### IF the option is ticked, do not append but overwrite the data inside the .ics file
 def create_ics_file(events, output_filename, overwrite):
     from icalendar import Calendar, Event
 
@@ -102,22 +106,33 @@ def create_ics_file(events, output_filename, overwrite):
     messagebox.showinfo("Erfolg", f"ICS Datei gespeichert:\n{output_filename}")
 
 
+### Select the PDF filepath
 def select_pdf():
-    file_path = filedialog.askopenfilename(filetypes=[("PDF Files", "*.pdf")])
+    file_path = filedialog.askopenfilename(
+        initialdir=read_data()["pdf_dir"],
+        filetypes=[("PDF Files", "*.pdf")]
+    )
+    
     pdf_entry.delete(0, tk.END)
     pdf_entry.insert(0, file_path)
 
 
+### Select the ICS filepath
 def select_output():
     file_path = filedialog.asksaveasfilename(
+        initialdir=read_data()["ics_dir"],
         defaultextension=".ics",
         filetypes=[("ICS Files", "*.ics")]
     )
+    
     output_entry.delete(0, tk.END)
     output_entry.insert(0, file_path)
 
 
+
+### Call all the functions and do all the processing
 def process_pdf():
+    write_data()
     pdf_path = pdf_entry.get()
     search_term = search_entry.get()
     output_filename = output_entry.get()
@@ -139,6 +154,45 @@ def process_pdf():
         create_ics_file(work_schedule, output_filename, overwrite)
 
 
+
+
+### Read data from json file and pre-fill the text input fields
+### IF NO FILE IS FOUND, use default json data instead
+def read_data():
+    try:
+        with open(SAVE_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {
+            "name": "",
+            "pdf_dir": "",
+            "ics_dir": ""
+        }
+
+### Get and write text inputs to json file
+def write_data():
+    name =search_entry.get()
+    pdf_dir = pdf_entry.get()
+    ics_dir = output_entry.get()
+
+    file_data = {
+        "name": name,
+        "pdf_dir": pdf_dir,
+        "ics_dir": ics_dir
+    }
+    with open(SAVE_FILE, "w", encoding="utf-8") as f:
+        json.dump(file_data, f, ensure_ascii=False, indent=2)
+
+
+if os.name == "nt":  # Windows
+    SAVE_FILE = os.path.expanduser("~/AppData/Roaming/PDF2ICS/path_memory.json")
+else:  # macOS / Linux
+    SAVE_FILE = os.path.expanduser("~/Library/Application Support/PDF2ICS/path_memory.json")
+
+os.makedirs(os.path.dirname(SAVE_FILE), exist_ok=True)
+
+
+
 # --- UI ---
 
 root = tk.Tk()
@@ -149,16 +203,20 @@ frame.pack(padx=5, pady=5)
 
 tk.Label(frame, text="PDF Datei:").grid(row=0, column=0, sticky="w")
 pdf_entry = tk.Entry(frame, width=50)
+pdf_entry.insert(0,read_data()["pdf_dir"])
 pdf_entry.grid(row=0, column=1, padx=5)
 tk.Button(frame, text="Durchsuchen", command=select_pdf).grid(row=0, column=2)
 
 tk.Label(frame, text="Nachname, Vorname:").grid(row=1, column=0, sticky="w")
 search_entry = tk.Entry(frame, width=50)
+search_entry.insert(0,read_data()["name"])
 search_entry.grid(row=1, column=1, padx=5)
 
 tk.Label(frame, text="Speicherort:").grid(row=2, column=0, sticky="w")
 output_entry = tk.Entry(frame, width=50)
+output_entry.insert(0,read_data()["ics_dir"])
 output_entry.grid(row=2, column=1, padx=5)
+
 tk.Button(frame, text="Speichern unter", command=select_output).grid(row=2, column=2)
 
 overwrite_var = tk.BooleanVar()

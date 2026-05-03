@@ -1,32 +1,29 @@
-### Version 1.1.2
-
+# Version 1.1.2
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from datetime import datetime
 import os
 import json
-
+import pdfplumber
+from zoneinfo import ZoneInfo
+from icalendar import Calendar, Event
 
 ### Searches the PDF File for the chosen name
 def find_rows_in_pdf(pdf_path, search_term):
-    import pdfplumber
-    import pandas as pd
 
     results = []
     with pdfplumber.open(pdf_path) as pdf:
         for page in pdf.pages:
             tables = page.extract_tables()
             for table in tables:
-                df = pd.DataFrame(table)
-                for _, row in df.iterrows():
+                for row in table:
                     if any(search_term in str(cell) for cell in row):
-                        results.append(row.tolist())
+                        results.append(row)
     return results
 
 
 ### Looks up the dates from the first row of the first page
 def get_dates_from_first_row(pdf_path):
-    import pdfplumber
 
     with pdfplumber.open(pdf_path) as pdf:
         first_page = pdf.pages[0]
@@ -45,11 +42,9 @@ def get_dates_from_first_row(pdf_path):
 
 ### Extracts work shift hours and parses them to the work schedule
 def parse_work_hours(row, dates):
-    import pytz
-    from datetime import datetime
 
     work_schedule = []
-    vienna_tz = pytz.timezone("Europe/Vienna")
+    vienna_tz = ZoneInfo("Europe/Vienna")
 
     for i, day in enumerate(row[2:]):
         if "-" in day and dates[i] is not None:
@@ -85,7 +80,6 @@ def parse_work_hours(row, dates):
 ### Writes work schedule into the .ics file
 ### IF the option is ticked, do not append but overwrite the data inside the .ics file
 def create_ics_file(events, output_filename, overwrite):
-    from icalendar import Calendar, Event
 
     cal = Calendar()
 

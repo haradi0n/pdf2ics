@@ -190,7 +190,7 @@ os.makedirs(os.path.dirname(SAVE_FILE), exist_ok=True)
 # --- UI ---
 
 root = tk.Tk()
-root.title("PDF zu ICS Konverter")
+root.title("PDF2ICS")
 
 frame = tk.Frame(root, padx=5, pady=5)
 frame.pack(padx=5, pady=5)

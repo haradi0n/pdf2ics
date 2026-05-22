@@ -4,8 +4,8 @@ from tkinter import filedialog, messagebox
 from datetime import datetime
 import os
 import json
-import pdfplumber
 from zoneinfo import ZoneInfo
+import pdfplumber
 from icalendar import Calendar, Event
 
 ### Searches the PDF File for the chosen name
@@ -57,7 +57,7 @@ def parse_work_hours(row, dates):
                 day=dates[i].day,
                 tzinfo=vienna_tz,
             )
-            if(end_time<=start_time):
+            if end_time<=start_time:
                 end_dt = datetime.strptime(end_time, "%H:%M").replace(
                     year=dates[i].year,
                     month=dates[i].month,
@@ -106,7 +106,7 @@ def select_pdf():
         initialdir=read_data()["pdf_dir"],
         filetypes=[("PDF Files", "*.pdf")]
     )
-    
+
     pdf_entry.delete(0, tk.END)
     pdf_entry.insert(0, file_path)
 
@@ -118,7 +118,7 @@ def select_output():
         defaultextension=".ics",
         filetypes=[("ICS Files", "*.ics")]
     )
-    
+
     output_entry.delete(0, tk.END)
     output_entry.insert(0, file_path)
 
